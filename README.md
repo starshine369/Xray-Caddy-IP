@@ -22,4 +22,4 @@
 在您的纯净版 **Debian/Ubuntu** 系统上，以 root 用户执行以下指令：
 
 ```bash
-curl -L [https://raw.githubusercontent.com/starshine369/Xray-Caddy-IP/main/install.sh](https://raw.githubusercontent.com/starshine369/Xray-Caddy-IP/main/install.sh) | bash
+curl -L https://raw.githubusercontent.com/starshine369/Xray-Caddy-IP/main/install.sh | bash
