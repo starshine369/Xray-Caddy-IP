@@ -23,14 +23,14 @@ fi
 
 # 📧 2. 交互式获取敏感信息
 echo "----------------------------------------------------"
-read -p "📧 请输入您的联系邮箱 (用于注册 ACME 账号): " USER_EMAIL
-read -p "🌐 请输入伪装域名 (例如 www.tesla.com): " FAKE_DOMAIN
+read -p "📧 请输入您的联系邮箱 (用于注册 ACME 账号): " USER_EMAIL </dev/tty
+read -p "🌐 请输入伪装域名 (例如 www.tesla.com): " FAKE_DOMAIN </dev/tty
 echo "----------------------------------------------------"
 echo "🚀 目标 IP: $SERVER_IP"
 echo "📧 联系邮箱: $USER_EMAIL"
 echo "🌐 伪装目标: $FAKE_DOMAIN"
 echo "----------------------------------------------------"
-read -p "确认以上信息无误？(y/n): " CONFIRM
+read -p "确认以上信息无误？(y/n): " CONFIRM </dev/tty
 if [ "$CONFIRM" != "y" ]; then
     echo "❌ 操作取消。"
     exit 1
