@@ -24,7 +24,11 @@ fi
 # 📧 2. 交互式获取敏感信息
 echo "----------------------------------------------------"
 read -p "📧 请输入您的联系邮箱 (用于注册 ACME 账号): " USER_EMAIL </dev/tty
-read -p "🌐 请输入伪装域名 (例如 www.tesla.com): " FAKE_DOMAIN </dev/tty
+read -p "🌐 请输入伪装域名 [默认: www.tesla.com]: " FAKE_DOMAIN </dev/tty
+
+# 如果用户未输入内容，则默认赋予 www.tesla.com
+FAKE_DOMAIN=${FAKE_DOMAIN:-www.tesla.com}
+
 echo "----------------------------------------------------"
 echo "🚀 目标 IP: $SERVER_IP"
 echo "📧 联系邮箱: $USER_EMAIL"
