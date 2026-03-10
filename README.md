@@ -1,7 +1,7 @@
-# 🛡️ VPS-Stealth: Xray & Caddy & LE-IP-Cert 
+# 🛡️ VPS-Stealth: Caddy & LE-IP-Cert 
 
 **毕业级富强服务器伪装方案。** 
-本脚本专为“富强主力机”设计，通过 **Caddy (Port 80)** 与 **Xray Reality (Port 443)** 的物理隔离，实现完美的商业网站伪装。同时利用 **Let's Encrypt** 申请 7 天短效 IP 证书，彻底解决纯 IP 节点的 HTTPS 合规性问题。
+本脚本专为“富强主力机”设计，通过 **Caddy (Port 80)** 与 **Port 443** 的物理隔离，实现完美的商业网站伪装。同时利用 **Let's Encrypt** 申请 7 天短效 IP 证书，彻底解决纯 IP 节点的 HTTPS 合规性问题。
 
 **证书存放路径：**/opt/cert/ip/
 
