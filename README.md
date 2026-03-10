@@ -1,27 +1,26 @@
-# 🛡️ VPS-Stealth: Caddy & LE-IP-Cert 
+# 🛡️ Proxy Panel IP Cert
 
-**毕业级富强服务器伪装方案。** 
-本脚本专为“富强主力机”设计，通过 **Caddy (Port 80)** 与 **Port 443** 的物理隔离，实现完美的商业网站伪装。同时利用 **Let's Encrypt** 申请 7 天短效 IP 证书，彻底解决纯 IP 节点的 HTTPS 合规性问题。
+> 为代理面板打造的终极 IP 证书与伪装前置方案。
 
-**证书存放路径：**/opt/cert/ip/
+专为 `x-ui` / `3x-ui` / `s-ui` 等主流代理面板设计的自动化部署脚本。它通过 Caddy 接管服务器的 80 端口，完美实现了**防主动探测伪装**与**全自动 Let's Encrypt IP 证书签发/续签**的有机结合。
 
-## ✨ 方案亮点
+## ✨ 核心特性
 
-| 核心组件 | 职责描述 | 伪装效果 |
-| :--- | :--- | :--- |
-| **Caddy (80)** | 守门人：处理 HTTP 验证与伪装 | 301 重定向至指定大厂域名 (如 Tesla) |
-| **Xray (443)** | 核心：Reality 协议加密流量 | 白嫖大厂证书，TLS 指纹完美伪装 |
-| **ACME (LE)** | 认证：Let's Encrypt IP 证书 | 7 天短效证书，凌晨 6:00 全自动续签 |
+- **🎭 流量分流与伪装**：Caddy 独占 80 端口。正常访客或扫描器会被 `301` 永久重定向到你设定的伪装域名（如 `www.tesla.com`），有效防范特征扫描。
+- **🔐 纯净 IP 证书**：全自动调用 `acme.sh` 申请 Let's Encrypt 短效期 (Short-lived) ECC IP 证书，无需拥有域名即可开启 HTTPS/TLS 加密通道。
+- **🤖 面板智能联动**：证书签发与续签完成后，自动检测并平滑重启主流代理面板（支持 `x-ui`, `3x-ui`, `s-ui`），确保底层核心（Xray/Sing-box）实时加载最新证书。
+- **⏰ 赛博生物钟**：自动植入 Crontab 定时任务，每日凌晨 06:00 静默触发证书审查与自动续签，一次部署，终身免维护。
 
-* **完全脱敏**：脚本运行过程中实时输入邮箱与伪装域名，不在脚本内留痕。
-* **物理隔离**：80 端口与 443 端口互不干涉，不需要复杂的流量转发。
-* **全自动续签**：针对 LE 短效证书优化的 `cron` 任务，自动完成验证、更新与重启。
+## ⚙️ 运行环境要求
 
----
+- **操作系统**：Debian / Ubuntu（推荐使用纯净系统）
+- **权限要求**：必须以 `root` 用户运行
+- **网络要求**：服务器必须拥有公网 IPv4 地址
+- **端口要求**：服务器的 **`80`** 端口必须处于空闲状态（不可被 Nginx, Apache 或面板直接占用）
 
-## 🚀 快速开始
+## 🚀 一键部署
 
-在您的纯净版 **Debian/Ubuntu** 系统上，以 root 用户执行以下指令：
+使用 SSH 登录到您的服务器，并以 `root` 身份执行以下命令：
 
 ```bash
-curl -L https://raw.githubusercontent.com/starshine369/Xray-Caddy-IP/main/install.sh | bash
+bash <(curl -sL [https://raw.githubusercontent.com/starshine369/proxy-panel-ip-cert/main/install.sh](https://raw.githubusercontent.com/starshine369/proxy-panel-ip-cert/main/install.sh))
