@@ -23,4 +23,4 @@
 使用 SSH 登录到您的服务器，并以 `root` 身份执行以下命令：
 
 ```bash
-bash <(curl -sL [https://raw.githubusercontent.com/starshine369/proxy-panel-ip-cert/main/install.sh](https://raw.githubusercontent.com/starshine369/proxy-panel-ip-cert/main/install.sh))
+curl -fsSL https://raw.githubusercontent.com/starshine369/proxy-panel-ip-cert/main/install.sh | bash
