@@ -76,13 +76,18 @@ sudo systemctl enable --now caddy
 sudo systemctl restart caddy
 
 # 6. 执行 IP 证书申请与安装
-echo "--- 正在申请 Let's Encrypt IP 证书 ---"
+echo "--- 正在清理环境并申请 Let's Encrypt IP 证书 ---"
 sudo mkdir -p /opt/cert/ip/
 
-# 申请证书
+# 强制清理旧的证书文件，防止之前说的“重复追加”bug
+sudo rm -f /opt/cert/ip/*.pem
+
+# 申请证书 (添加了 Let's Encrypt IP 证书强制要求的短期配置参数)
 /root/.acme.sh/acme.sh --issue -d $SERVER_IP \
 --webroot /var/www/acme \
 --server letsencrypt \
+--certificate-profile shortlived \
+--days 2 \
 --force \
 --ecc
 
