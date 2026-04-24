@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # ====================================================
-# Caddy伪装 + Let's Encrypt IP证书一键脚本
+# Caddy伪装 + Let's Encrypt IP证书一键脚本 (已修复 Debian 12 兼容性)
 # ====================================================
 
 set -e
 
 # 0. Root 权限检查
 if [[ $EUID -ne 0 ]]; then
-   echo "❌ 错误：请以 root 权限运行此脚本！"
-   exit 1
+    echo "❌ 错误：请以 root 权限运行此脚本！"
+    exit 1
 fi
 
 # 1. 自动检测环境与 IP
@@ -20,7 +20,7 @@ if [ -z "$SERVER_IP" ]; then
     exit 1
 fi
 
-# 2. 交互式获取信息 (增加 </dev/tty 以支持管道执行)
+# 2. 交互式获取信息
 echo "----------------------------------------------------"
 printf "📧 请输入您的联系邮箱 (用于注册 ACME 账号): "
 read -r USER_EMAIL </dev/tty
@@ -45,12 +45,15 @@ fi
 echo "--- 正在安装环境依赖 ---"
 apt update && apt install -y curl socat cron sudo debian-keyring debian-archive-keyring apt-transport-https
 
+# 确保 cron 服务启动 (Debian 12 核心修复 1)
+systemctl enable --now cron || true
+
 # 4. 安装 acme.sh 并注册账号
 echo "--- 正在初始化 acme.sh 环境 ---"
 curl https://get.acme.sh | sh -s email=$USER_EMAIL
-# 强制锁定 Let's Encrypt 并注册
+# 锁定 Let's Encrypt 并注册
 /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
-/root/.acme.sh/acme.sh --register-account -m $USER_EMAIL --server letsencrypt
+/root/.acme.sh/acme.sh --register-account -m "$USER_EMAIL" --server letsencrypt
 
 # 5. 部署 Caddy 门卫
 echo "--- 正在部署 Caddy 伪装防御体系 ---"
@@ -78,12 +81,10 @@ sudo systemctl restart caddy
 # 6. 执行 IP 证书申请与安装
 echo "--- 正在清理环境并申请 Let's Encrypt IP 证书 ---"
 sudo mkdir -p /opt/cert/ip/
-
-# 强制清理旧的证书文件，防止之前说的“重复追加”bug
 sudo rm -f /opt/cert/ip/*.pem
 
-# 申请证书 (添加了 Let's Encrypt IP 证书强制要求的短期配置参数)
-/root/.acme.sh/acme.sh --issue -d $SERVER_IP \
+# 申请证书 (使用你原本正确的 Let's Encrypt 6天短期证书配置)
+/root/.acme.sh/acme.sh --issue -d "$SERVER_IP" \
 --webroot /var/www/acme \
 --server letsencrypt \
 --certificate-profile shortlived \
@@ -92,14 +93,20 @@ sudo rm -f /opt/cert/ip/*.pem
 --ecc
 
 # 物理提取并设置重启联动
-/root/.acme.sh/acme.sh --install-cert -d $SERVER_IP --ecc \
+/root/.acme.sh/acme.sh --install-cert -d "$SERVER_IP" --ecc \
 --key-file       /opt/cert/ip/privkey.pem  \
 --fullchain-file /opt/cert/ip/fullchain.pem \
 --reloadcmd      "systemctl restart x-ui || systemctl restart 3x-ui || systemctl restart s-ui || echo 'No Panel Found'"
 
-# 7. 校准凌晨 6:00 自动续签逻辑
+# 7. 校准凌晨 6:00 自动续签逻辑 (Debian 12 核心修复 2)
 echo "--- 正在校准自动续签逻辑 ---"
-(crontab -l 2>/dev/null | grep -v "acme.sh" ; echo "0 6 * * * \"/root/.acme.sh\"/acme.sh --cron --home \"/root/.acme.sh\" > /dev/null") | crontab -
+# 使用临时文件法完美避开 set -e 导致的子 Shell 中断问题
+CRONTAB_TMP=$(mktemp)
+crontab -l > "$CRONTAB_TMP" 2>/dev/null || true  # 如果没有定时任务则忽略错误
+sed -i '/acme\.sh/d' "$CRONTAB_TMP" 2>/dev/null || true # 清理旧的 acme 任务
+echo '0 6 * * * "/root/.acme.sh"/acme.sh --cron --home "/root/.acme.sh" > /dev/null' >> "$CRONTAB_TMP"
+crontab "$CRONTAB_TMP"
+rm -f "$CRONTAB_TMP"
 
 echo "----------------------------------------------------"
 echo "✅ 部署完美结束！"
